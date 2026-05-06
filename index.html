@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0F6E56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lab MP3">
+<title>Lab MP3 — Mediciones</title>
+
+<style>
+  :root {
+    --green-dark:   #085041;
+    --green-main:   #0F6E56;
+    --green-mid:    #1D9E75;
+    --green-light:  #E1F5EE;
+    --green-border: #5DCAA5;
+    --text-primary: #1a1a1a;
+    --text-muted:   #6b7280;
+    --text-hint:    #9ca3af;
+    --bg:           #f5f5f2;
+    --bg-card:      #ffffff;
+    --border:       rgba(0,0,0,0.10);
+    --border-focus: #1D9E75;
+    --radius-sm:    8px;
+    --radius-md:    12px;
+    --radius-lg:    16px;
+    --shadow-card:  0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--green-main);
+    padding: 1rem 1.25rem 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header svg { flex-shrink: 0; }
+  .header-text h1 { font-size: 17px; font-weight: 600; color: #fff; line-height: 1.2; }
+  .header-text p  { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .header-time {
+    margin-left: auto;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 13px;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── MAIN ── */
+  .main { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 0.7rem 1rem;
+    background: #f8f8f6;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card-header span {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+  }
+  .card-body { padding: 0.9rem 1rem; }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 0.7rem; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    background: #fff;
+    color: var(--text-primary);
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
+  }
+  .field input::placeholder { color: var(--text-hint); }
+  .field .unit {
+    font-size: 11px;
+    color: var(--text-hint);
+    margin-top: 3px;
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* ── CHIP SELECTORS ── */
+  .chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .chip {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    background: #fff;
+    color: var(--text-muted);
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.12s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .chip.active {
+    background: var(--green-main);
+    border-color: var(--green-main);
+    color: #fff;
+    font-weight: 500;
+  }
+  .chip-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+  .chip-2col {
+    padding: 10px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    background: #fff;
+    color: var(--text-muted);
+    font-family: inherit;
+    text-align: center;
+    transition: all 0.12s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .chip-2col.active {
+    background: var(--green-light);
+    border-color: var(--green-border);
+    color: var(--green-dark);
+    font-weight: 600;
+  }
+
+  /* ── DATETIME ── */
+  input[type="date"], input[type="time"] {
+    font-size: 15px !important;
+  }
+
+  /* ── CONTEO PARTÍCULAS ── */
+  .particle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .particle-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .particle-name {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+  .particle-desc {
+    display: block;
+    font-size: 11px;
+    color: var(--text-hint);
+    margin-top: 1px;
+  }
+  .counter-wrap { display: flex; align-items: center; gap: 0; }
+  .counter-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    background: #f5f5f2;
+    color: var(--text-primary);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    transition: background 0.1s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .counter-btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  .counter-btn:last-child  { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .counter-btn:active { background: #e5e5e2; }
+  .counter-val {
+    width: 52px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-left: none;
+    border-right: none;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    background: #fff;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+  }
+  .counter-val:focus {
+    outline: none;
+    background: #f0faf5;
+  }
+
+  /* ── BOTÓN ENVIAR ── */
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--green-main);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 0.25rem;
+    transition: background 0.15s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(15,110,86,0.35);
+  }
+  .btn-submit:active { transform: scale(0.98); background: var(--green-dark); }
+  .btn-submit:disabled { background: #9ca3af; box-shadow: none; cursor: not-allowed; }
+
+  .btn-clear {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 0.5rem;
+    transition: background 0.12s;
+  }
+  .btn-clear:active { background: #eee; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1a1a1a;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--green-dark); }
+  .toast.error   { background: #a32d2d; }
+
+  /* ── SPINNER ── */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn-submit.loading .spinner { display: block; }
+  .btn-submit.loading .btn-text { display: none; }
+
+  /* ── SELECT CUSTOM ARROW ── */
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-hint);
+    pointer-events: none;
+    font-size: 14px;
+  }
+  .select-wrap select { padding-right: 32px; }
+
+  /* ── OPTIONAL BADGE ── */
+  .opt-badge {
+    font-size: 10px;
+    background: #f1efe8;
+    color: var(--text-hint);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 400;
+    vertical-align: middle;
+  }
+
+  /* ── RESUMEN PREVIO ── */
+  .prev-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    margin-left: auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 3v7l-3 6a2 2 0 0 0 1.8 2.9h8.4A2 2 0 0 0 18 16l-3-6V3"/><line x1="9" y1="3" x2="15" y2="3"/>
+  </svg>
+  <div class="header-text">
+    <h1>Lab MP3</h1>
+    <p>Softys Talagante</p>
+  </div>
+  <div class="header-time" id="reloj">--:--</div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- PERFIL -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted)"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Perfil de operador</span>
+    </div>
+    <div class="card-body">
+      <div class="chip-grid-2col" id="perfil-grid">
+        <button class="chip-2col" onclick="selChip('perfil',this,'Analista Lab')">🔬 Analista lab</button>
+        <button class="chip-2col" onclick="selChip('perfil',this,'Operador Planta')">⚙️ Operador</button>
+        <button class="chip-2col" onclick="selChip('perfil',this,'Jefe Turno')">✅ Jefe turno</button>
+        <button class="chip-2col" onclick="selChip('perfil',this,'Otro')">👤 Otro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FECHA Y HORA -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Fecha y hora</span>
+    </div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" id="fecha">
+        </div>
+        <div class="field">
+          <label>Hora</label>
+          <input type="time" id="hora">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUNTO DE MUESTREO -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted)"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      <span>Punto de muestreo</span>
+    </div>
+    <div class="card-body">
+      <div class="chip-grid" id="punto-grid">
+        <button class="chip" onclick="selChip('punto',this,'Caja de Entrada')">Caja de Entrada</button>
+        <button class="chip" onclick="selChip('punto',this,'Bajo Tela')">Bajo Tela</button>
+        <button class="chip" onclick="selChip('punto',this,'PU 12')">PU 12</button>
+        <button class="chip" onclick="selChip('punto',this,'PU 40')">PU 40</button>
+        <button class="chip" onclick="selChip('punto',this,'Tanque Reciclado')">Tanque Reciclado</button>
+        <button class="chip" onclick="selChip('punto',this,'Salida Disperguer')">Salida Disperguer</button>
+        <button class="chip" onclick="selChip('punto',this,'Salida Floodaft')">Salida Floodaft</button>
+        <button class="chip" onclick="selChip('punto',this,'Salida Saturno')">Salida Saturno</button>
+        <button class="chip" onclick="selChip('punto',this,'Entrada a Floodaft')">Entrada a Floodaft</button>
+        <button class="chip" onclick="selChip('punto',this,'Entrada a Saturno')">Entrada a Saturno</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDICIONES -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted)"><path d="M9 3v7l-3 6a2 2 0 0 0 1.8 2.9h8.4A2 2 0 0 0 18 16l-3-6V3"/><line x1="9" y1="3" x2="15" y2="3"/></svg>
+      <span>Mediciones <span class="opt-badge">todos opcionales</span></span>
+    </div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="field">
+          <label>pH</label>
+          <input type="number" id="ph" step="0.01" min="0" max="14" placeholder="7.2" inputmode="decimal">
+          <div class="unit">0 – 14</div>
+        </div>
+        <div class="field">
+          <label>Turbidez</label>
+          <input type="number" id="turbidez" step="0.1" placeholder="12.5" inputmode="decimal">
+          <div class="unit">NTU</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Sólidos susp.</label>
+          <input type="number" id="ss" step="1" placeholder="45" inputmode="decimal">
+          <div class="unit">ppm</div>
+        </div>
+        <div class="field">
+          <label>Demanda iónica</label>
+          <input type="number" id="di" step="0.1" placeholder="–15.5" inputmode="decimal">
+          <div class="unit">μeq/L</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEO DE PARTÍCULAS -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted)"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="7" r="3"/><circle cx="19" cy="14" r="2.5"/></svg>
+      <span>Conteo de partículas <span class="opt-badge">opcionales</span></span>
+    </div>
+    <div class="card-body" style="padding-top:0.5rem;">
+      <div class="particle-row">
+        <div class="particle-name">
+          Pequeños
+          <span class="particle-desc">< 0.2 mm</span>
+        </div>
+        <div class="counter-wrap">
+          <button class="counter-btn" onclick="adjustCounter('pequenos',-1)">−</button>
+          <input class="counter-val" id="pequenos" type="number" value="" min="0" inputmode="numeric" placeholder="—">
+          <button class="counter-btn" onclick="adjustCounter('pequenos',1)">+</button>
+        </div>
+      </div>
+      <div class="particle-row">
+        <div class="particle-name">
+          Medianos
+          <span class="particle-desc">0.2 – 2 mm</span>
+        </div>
+        <div class="counter-wrap">
+          <button class="counter-btn" onclick="adjustCounter('medianos',-1)">−</button>
+          <input class="counter-val" id="medianos" type="number" value="" min="0" inputmode="numeric" placeholder="—">
+          <button class="counter-btn" onclick="adjustCounter('medianos',1)">+</button>
+        </div>
+      </div>
+      <div class="particle-row">
+        <div class="particle-name">
+          Grandes
+          <span class="particle-desc">> 2 mm</span>
+        </div>
+        <div class="counter-wrap">
+          <button class="counter-btn" onclick="adjustCounter('grandes',-1)">−</button>
+          <input class="counter-val" id="grandes" type="number" value="" min="0" inputmode="numeric" placeholder="—">
+          <button class="counter-btn" onclick="adjustCounter('grandes',1)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBSERVACIONES -->
+  <div class="card">
+    <div class="card-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span>Observaciones <span class="opt-badge">opcional</span></span>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <textarea id="obs" rows="2"
+          style="width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;resize:vertical;color:var(--text-primary)"
+          placeholder="Ej: muestra turbia, espuma excesiva, color anormal..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTONES -->
+  <button class="btn-submit" id="btn-enviar" onclick="enviar()">
+    <div class="spinner"></div>
+    <span class="btn-text">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Enviar a Google Sheets
+    </span>
+  </button>
+  <button class="btn-clear" onclick="limpiar()">Limpiar formulario</button>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  ⚙️  CONFIGURACIÓN — editar solo esta línea
+// ══════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvh6OpRYSE5W5wfwic0nrwsedJoGIe4bKYHedpWe0X-peZPt6rip-yuJI322u86pO9Wg/exec';
+// Ejemplo: 'https://script.google.com/macros/s/AKfy.../exec'
+
+// ══════════════════════════════════════════════
+//  Estado
+// ══════════════════════════════════════════════
+const state = { perfil: '', punto: '' };
+
+// ══════════════════════════════════════════════
+//  Inicializar fecha y hora
+// ══════════════════════════════════════════════
+(function init() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('fecha').value =
+    now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate());
+  document.getElementById('hora').value =
+    pad(now.getHours()) + ':' + pad(now.getMinutes());
+  actualizarReloj();
+  setInterval(actualizarReloj, 10000);
+})();
+
+function actualizarReloj() {
+  const n = new Date();
+  const pad = x => String(x).padStart(2,'0');
+  document.getElementById('reloj').textContent =
+    pad(n.getHours()) + ':' + pad(n.getMinutes());
+}
+
+// ══════════════════════════════════════════════
+//  Chips
+// ══════════════════════════════════════════════
+function selChip(tipo, el, val) {
+  const parent = el.closest('[id$="-grid"]');
+  parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  state[tipo] = val;
+}
+
+// ══════════════════════════════════════════════
+//  Contador de partículas
+// ══════════════════════════════════════════════
+function adjustCounter(id, delta) {
+  const input = document.getElementById(id);
+  const current = parseInt(input.value) || 0;
+  const next = Math.max(0, current + delta);
+  input.value = next;
+}
+
+// ══════════════════════════════════════════════
+//  Toast
+// ══════════════════════════════════════════════
+function showToast(msg, tipo = 'success', duracion = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + tipo + ' show';
+  setTimeout(() => t.classList.remove('show'), duracion);
+}
+
+// ══════════════════════════════════════════════
+//  Limpiar
+// ══════════════════════════════════════════════
+function limpiar() {
+  if (!confirm('¿Limpiar todos los campos?')) return;
+  ['perfil-grid','punto-grid'].forEach(id =>
+    document.getElementById(id).querySelectorAll('button')
+      .forEach(b => b.classList.remove('active'))
+  );
+  state.perfil = ''; state.punto = '';
+  ['ph','turbidez','ss','di','pequenos','medianos','grandes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('obs').value = '';
+  // Restaurar hora actual
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('fecha').value =
+    now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+  document.getElementById('hora').value =
+    pad(now.getHours())+':'+pad(now.getMinutes());
+  showToast('Formulario limpiado', 'success', 1500);
+}
+
+// ══════════════════════════════════════════════
+//  Enviar
+// ══════════════════════════════════════════════
+async function enviar() {
+  // Validar mínimos obligatorios
+  if (!state.perfil) { showToast('⚠️ Selecciona tu perfil', 'error', 2500); return; }
+  if (!state.punto)  { showToast('⚠️ Selecciona el punto de muestreo', 'error', 2500); return; }
+
+  const datos = {
+    timestamp:   new Date().toISOString(),
+    fecha:       document.getElementById('fecha').value,
+    hora:        document.getElementById('hora').value,
+    perfil:      state.perfil,
+    punto:       state.punto,
+    ph:          document.getElementById('ph').value || '',
+    turbidez_ntu:document.getElementById('turbidez').value || '',
+    ss_ppm:      document.getElementById('ss').value || '',
+    demanda_ionica: document.getElementById('di').value || '',
+    pequenos:    document.getElementById('pequenos').value || '',
+    medianos:    document.getElementById('medianos').value || '',
+    grandes:     document.getElementById('grandes').value || '',
+    observaciones: document.getElementById('obs').value || ''
+  };
+
+  // Verificar que al menos hay un dato de medición
+  const hayDatos = ['ph','turbidez_ntu','ss_ppm','demanda_ionica','pequenos','medianos','grandes']
+    .some(k => datos[k] !== '');
+  if (!hayDatos) {
+    showToast('⚠️ Ingresa al menos una medición', 'error', 2500);
+    return;
+  }
+
+  const btn = document.getElementById('btn-enviar');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  // Si no hay URL configurada, simular envío
+  if (APPS_SCRIPT_URL === 'TU_URL_DE_APPS_SCRIPT_AQUI') {
+    await new Promise(r => setTimeout(r, 1200));
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showToast('✓ Enviado correctamente (modo prueba)', 'success', 3500);
+    console.table(datos);
+    return;
+  }
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showToast('✓ Datos enviados a Google Sheets', 'success');
+    // Limpiar mediciones pero mantener perfil y punto
+    ['ph','turbidez','ss','di','pequenos','medianos','grandes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('obs').value = '';
+    // Actualizar hora
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    document.getElementById('hora').value =
+      pad(now.getHours())+':'+pad(now.getMinutes());
+  } catch(err) {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showToast('✗ Error de conexión. Reintenta.', 'error', 4000);
+    console.error(err);
+  }
+}
+</script>
+</body>
+</html>
