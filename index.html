@@ -648,8 +648,15 @@ async function enviar() {
   };
 
   // Verificar que al menos hay un dato de medición
-  const hayDatos = ['ph','turbidez_ntu','ss_ppm','demanda_ionica','pequenos','medianos','grandes']
-    .some(k => datos[k] !== '');
+  const hayDatos = [
+    document.getElementById('ph').value,
+    document.getElementById('turbidez').value,
+    document.getElementById('ss').value,
+    document.getElementById('di').value,
+    document.getElementById('pequenos').value,
+    document.getElementById('medianos').value,
+    document.getElementById('grandes').value
+  ].some(v => v !== '');
   if (!hayDatos) {
     showToast('⚠️ Ingresa al menos una medición', 'error', 2500);
     return;
