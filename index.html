@@ -460,6 +460,18 @@
           <div class="unit">μeq/L</div>
         </div>
       </div>
+      <div class="row2">
+        <div class="field">
+          <label>Consistencia</label>
+          <input type="number" id="Consistencia" step="0.001" min="0" max="1" placeholder="0.22" inputmode="decimal">
+          <div class="unit">0 – 1</div>
+        </div>
+        <div class="field">
+          <label>SR</label>
+          <input type="number" id="SR" step="1" placeholder="22" inputmode="numeric">
+          <div class="unit">SR</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -641,6 +653,8 @@ async function enviar() {
     turbidez_ntu:document.getElementById('turbidez').value || '',
     ss_ppm:      document.getElementById('ss').value || '',
     demanda_ionica: document.getElementById('di').value || '',
+    consistencia: document.getElementById('consistencia').value || '',
+    sr: document.getElementById('sr').value || '',
     pequenos:    document.getElementById('pequenos').value || '',
     medianos:    document.getElementById('medianos').value || '',
     grandes:     document.getElementById('grandes').value || '',
@@ -653,6 +667,8 @@ async function enviar() {
     document.getElementById('turbidez').value,
     document.getElementById('ss').value,
     document.getElementById('di').value,
+    document.getElementById('consistencia').value || '',
+    document.getElementById('sr').value || '',
     document.getElementById('pequenos').value,
     document.getElementById('medianos').value,
     document.getElementById('grandes').value
@@ -661,7 +677,21 @@ async function enviar() {
     showToast('⚠️ Ingresa al menos una medición', 'error', 2500);
     return;
   }
+const rangos = [
+  { id: 'ph',          min: 0,    max: 14,   nombre: 'pH' },
+  { id: 'turbidez',    min: 0,    max: 16000, nombre: 'Turbidez' },
+  { id: 'ss',          min: 0,    max: 7000, nombre: 'Sólidos susp.' },
+  { id: 'consistencia',min: 0,    max: 1,    nombre: 'Consistencia' }
+  { id: 'sr',min: 15,    max: 35,    nombre: 'sr' }
+];  
 
+for (const r of rangos) {
+  const val = parseFloat(document.getElementById(r.id).value);
+  if (!isNaN(val) && (val < r.min || val > r.max)) {
+    showToast(`⚠️ ${r.nombre} debe estar entre ${r.min} y ${r.max}`, 'error', 2500);
+    return;
+  }
+}
   const btn = document.getElementById('btn-enviar');
   btn.classList.add('loading');
   btn.disabled = true;
