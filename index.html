@@ -621,7 +621,7 @@ function limpiar() {
       .forEach(b => b.classList.remove('active'))
   );
   state.perfil = ''; state.punto = '';
-  ['ph','turbidez','ss','di','pequenos','medianos','grandes'].forEach(id => {
+  ['ph','turbidez','ss','di','consistencia','sr','pequenos','medianos','grandes'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('obs').value = '';
